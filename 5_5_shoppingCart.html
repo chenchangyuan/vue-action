@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <!-- 购物车实现需求：
+    列表展示商品名称，价格，数量（增加或减少），操作（移除），并实时显示总价
+     -->
+    <style>
+        [v-cloak]{
+            display: none;
+        }
+        table{
+            border: 1px solid #e9e9e9;
+            border-collapse: collapse;
+            border-spacing: 0;
+            empty-cells: show;
+        }
+        td, th{
+            padding: 8px 16px;
+            border: 1px solid #e9e9e9;
+            text-align: left;
+
+        }
+        th{
+            background: #f7f7f7;
+            color: #5c6b77;
+            font-weight: 600;
+            white-space: nowrap
+        }
+    </style>
+</head>
+<body>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<div id="app" v-cloak>
+    <table border="1">
+        <tr>
+            <th></th>
+            <th>商品名称</th>
+            <th>商品类别</th>
+            <th>商品单价</th>
+            <th>商品数量</th>
+            <th>操作</th>
+            <th>全选<input id="select" type="checkbox" @click="check()"></th>
+        </tr>
+        <template v-for="(product, index) in products">
+            <tr>
+                <td>{{index + 1}}</td>
+                <td>{{product.name}}</td>
+                <td>{{product.type}}</td>
+                <td>{{product.price}}</td>
+                <td>
+                    <button @click="subtract(index)">-</button>
+                    {{product.count}}
+                    <button @click="add(index)">+</button>
+                </td>
+                <td>
+                    <button @click="remove(index)">移除</button>
+                </td>
+                <td>
+                    <input :id="idx(index)" @click="subCheck(index)" type="checkbox">
+                </td>
+            </tr>
+        </template>
+    </table>
+    <p>总价：{{sum()}}</p>
+</div>
+<script type="text/javascript">
+    var app = new Vue({
+        el: '#app',
+        data: {
+            finalProducts: [],
+            products:[
+                {
+                    name: 'JavaScript',
+                    price: 20,
+                    count: 2,
+                    type: 'book'
+                },
+                {
+                    name: '北京方便面',
+                    price: 2,
+                    count: 2,
+                    type: 'snack'
+                },
+                {
+                    name: 'Java',
+                    price: 30,
+                    count: 2,
+                    type: 'book'
+                },
+                {
+                    name: '旺旺煎豆',
+                    price: 5,
+                    count: 2,
+                    type: 'snack'
+                },
+                {
+                    name: '毛巾',
+                    price: 3,
+                    count: 5,
+                    type: 'DailyNecessities'
+                },
+                {
+                    name: '牙刷',
+                    price: 5,
+                    count: 2,
+                    type: 'DailyNecessities'
+                },
+            ]
+        },
+        computed: {
+
+        },
+        created: function(){
+            console.log(1,this.products)
+            for(var i=0;i<this.products.length-1;i++){
+                for(var j=i+1;j<this.products.length-1;j++){
+                    if(this.products[i].type > this.products[j].type){
+                        var temp = this.products[j];
+                        this.products[j] = this.products[j+1];
+                        this.products[j+1] = temp;
+                    }
+                }
+            }
+            console.log(1,this.products)
+        },
+
+        methods: {
+            calculate: function(){
+                this.finalProducts = [];
+                for(var i=0;i<this.products.length;i++){
+                    document.querySelector('#p_'+i).checked = true;
+                    this.finalProducts.push(this.products[i]);
+                }
+            },
+            idx: function(index){
+                return 'p_' + index;
+            },
+            check: function(){
+                var checkBoxDom = document.querySelector('#select');
+                if(checkBoxDom.checked){
+                    this.calculate();
+                }else{
+                    for(var i=0;i<this.products.length;i++){
+                        document.querySelector('#p_'+i).checked = false;
+                    }
+                    this.finalProducts = [];
+                }
+            },
+            subCheck: function(index){
+                var subDom = document.querySelector('#p_'+index);
+                if(subDom.checked){
+                    this.finalProducts.push(this.products[index]);
+                }else{
+                    this.calculate();
+                }
+            },
+            sum: function(){
+                var result = 0;
+                for(var i=0;i<this.finalProducts.length;i++){
+                    result += this.finalProducts[i].price * this.finalProducts[i].count;
+                }
+                return result;
+            },
+            add: function(index){
+                this.products[index].count++;
+            },
+            subtract: function(index){
+                if(this.products[index].count <= 1){
+                    this.products.splice(index, 1);
+                }else{
+                    this.products[index].count--;
+                }
+            },
+            remove: function(index,){
+                this.products.splice(index, 1);
+                this.calculate();
+            }
+        }
+    })
+</script>
+</body>
+</html>
